@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import org.bic.newsapp.databinding.ActivityMainBinding
 import org.bic.newsapp.fragments.bookmarks.BookmarksFragment
 import org.bic.newsapp.fragments.breakingnews.BreakingnewsFragment
 import org.bic.newsapp.fragments.searchnews.SearchnewsFragment
 import org.bic.newsapp.util.Constants
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
