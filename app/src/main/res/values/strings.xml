@@ -9,4 +9,5 @@
     <string name="search_news">Search News</string>
     <string name ="unknown_eror_occured">Uknown Error Occured. We Have No Idea whats going on. Tough luck…</string>
     <string name="bookmarks">Bookmarks</string>
+    <string name="refresh">Refresh</string>
 </resources>

@@ -4,6 +4,8 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import org.bic.newsapp.util.Resource
 import org.bic.newsapp.util.networkBoundResource
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,7 +15,9 @@ class NewsRepository @Inject constructor(
     private val newsArticleDb : NewsArticleDatabase
 ) {
     private val newsArticleDao = newsArticleDb.newsArticleDao()
-     fun getBreakingNews() : Flow<Resource<List<NewsArticle>>>  =
+     fun getBreakingNews(
+         onFetchFailed:(Throwable) -> Unit
+     ) : Flow<Resource<List<NewsArticle>>>  =
         networkBoundResource(
             query = {
                 newsArticleDao.getAllBreakingNewsArticles()
@@ -46,6 +50,14 @@ class NewsRepository @Inject constructor(
                 }
 
 
+            },
+
+            onFetchFailed = {
+
+                if(it !is HttpException && it !is IOException){
+                    throw it
+                }
+                 onFetchFailed(it)
             }
 
         )

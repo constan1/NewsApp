@@ -13,12 +13,13 @@ inline fun <ResultType, RequestType> networkBoundResource(
     crossinline query: () -> Flow<ResultType>,
     crossinline fetch: suspend () -> RequestType,
     crossinline saveFetchResult: suspend (RequestType) -> Unit,
-    crossinline shouldFetch: (ResultType) -> Boolean = { true }
+    crossinline shouldFetch: (ResultType) -> Boolean = { true },
+    crossinline onFetchFailed : (Throwable) -> Unit = { }
 ) = channelFlow {
     val data = query().first()
 
     /*
-    This conditioanl statement determines whether
+    This conditional statement determines whether
     we fetch the data from the api and cache it.
      */
     if(shouldFetch(data)){
@@ -36,6 +37,7 @@ inline fun <ResultType, RequestType> networkBoundResource(
             query().collect { send(Resource.Success(it))}
         } catch (t: Throwable){
             //Exceptions
+            onFetchFailed(t)
             loading.cancel()
             query().collect {
                 send(Resource.Error(t, it))

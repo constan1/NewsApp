@@ -1,9 +1,7 @@
 package org.bic.newsapp.fragments.breakingnews
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -19,6 +17,8 @@ import org.bic.newsapp.R
 import org.bic.newsapp.data.adapters.NewsArticleAdapter
 import org.bic.newsapp.databinding.FragmentBreakingNewsBinding
 import org.bic.newsapp.util.Resource
+import org.bic.newsapp.util.exhaustive
+import org.bic.newsapp.util.showSnackbar
 import org.bic.newsapp.viewmodels.BreakingNewsViewModel
 
 @AndroidEntryPoint
@@ -27,6 +27,7 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
     private lateinit var  viewModel :  BreakingNewsViewModel
     private var _binding: FragmentBreakingNewsBinding? = null
     private val binding get() = _binding!!
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,10 +65,51 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
                         ?:getString(R.string.unknown_eror_occured)
                 )
 
+
                 newsArticleAdapter.submitList(result.data)
             }
         }
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.onManualRefresh()
+        }
+
+        binding.buttonRetry.setOnClickListener {
+            viewModel.onManualRefresh()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.events.collect {
+                event -> when(event){
+                is BreakingNewsViewModel.Event.ShowErrorMessage ->
+                    showSnackbar(
+                        getString(R.string.could_not_refresh,
+                        event.error.localizedMessage ?: getString(
+                            R.string.unknown_eror_occured
+                        ))
+                    )
+            }.exhaustive
+            }
+        }
+
+        setHasOptionsMenu(true)
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.onStart()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_breaking_news, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId){
+            R.id.action_refresh -> {
+                viewModel.onManualRefresh()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
 }
