@@ -1,5 +1,7 @@
 package org.bic.newsapp.fragments.breakingnews
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -43,7 +45,19 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val newsArticleAdapter = NewsArticleAdapter()
+        val newsArticleAdapter = NewsArticleAdapter(
+            onItemClick = {
+                article ->
+                val uri = Uri.parse(article.url)
+                val intent = Intent(Intent.ACTION_VIEW,uri)
+                requireActivity().startActivity(intent)
+            },
+
+            onBookmarkClick = {
+                article ->
+//                viewModel.onBookMarkClick(article)
+            }
+        )
         _binding = FragmentBreakingNewsBinding.inflate(inflater, container, false)
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).adapter = newsArticleAdapter
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).layoutManager =

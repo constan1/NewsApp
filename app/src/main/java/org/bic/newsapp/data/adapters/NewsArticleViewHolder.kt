@@ -7,7 +7,9 @@ import org.bic.newsapp.data.NewsArticle
 import org.bic.newsapp.databinding.ItemNewsArticleBinding
 
 class NewsArticleViewHolder(
-    private val binding: ItemNewsArticleBinding
+    private val binding: ItemNewsArticleBinding,
+    private val onItemClick: (Int) -> Unit,
+    private val onBookmarkCick: (Int) -> Unit
 ): RecyclerView.ViewHolder(binding.root) {
 
     fun bind(article: NewsArticle){
@@ -24,6 +26,23 @@ class NewsArticleViewHolder(
                     else -> R.drawable.ic_unselected
                 }
             )
+        }
+    }
+
+    init {
+        binding.apply{
+            root.setOnClickListener {
+                val position = bindingAdapterPosition
+                if(position != RecyclerView.NO_POSITION){
+                    onItemClick(position)
+                }
+            }
+            imageViewBookmark.setOnClickListener {
+                val position = bindingAdapterPosition
+                if(position != RecyclerView.NO_POSITION){
+                    onBookmarkCick(position)
+                }
+            }
         }
     }
 }
