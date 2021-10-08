@@ -66,7 +66,12 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
                 )
 
 
-                newsArticleAdapter.submitList(result.data)
+                newsArticleAdapter.submitList(result.data) {
+                    if (viewModel.pendingScrollToTopAfterRefresh){
+                        binding.root.findViewById<RecyclerView>(R.id.recycler_view).scrollToPosition(0)
+                        viewModel.pendingScrollToTopAfterRefresh = false
+                    }
+                }
             }
         }
         binding.swipeRefreshLayout.setOnRefreshListener {

@@ -6,6 +6,8 @@ import org.bic.newsapp.util.Resource
 import org.bic.newsapp.util.networkBoundResource
 import retrofit2.HttpException
 import java.io.IOException
+import java.sql.Timestamp
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +18,8 @@ class NewsRepository @Inject constructor(
 ) {
     private val newsArticleDao = newsArticleDb.newsArticleDao()
      fun getBreakingNews(
+         forceRefresh: Boolean,
+         onFetchSuccess: () -> Unit,
          onFetchFailed:(Throwable) -> Unit
      ) : Flow<Resource<List<NewsArticle>>>  =
         networkBoundResource(
@@ -52,6 +56,25 @@ class NewsRepository @Inject constructor(
 
             },
 
+
+            shouldFetch ={
+                cachedArticles ->
+                if(forceRefresh){
+                    true
+                } else {
+                    val sortedArticles = cachedArticles.sortedBy {
+                            article -> article.updatedAt
+                    }
+
+                    val oldestTimeStamp = sortedArticles.firstOrNull()?.updatedAt
+                    val needsRefresh = oldestTimeStamp == null ||
+                            oldestTimeStamp < System.currentTimeMillis() -
+                            TimeUnit.MINUTES.toMillis(5)
+                    needsRefresh
+                }
+
+            },
+            onFetchSuccess = onFetchSuccess,
             onFetchFailed = {
 
                 if(it !is HttpException && it !is IOException){
@@ -63,5 +86,8 @@ class NewsRepository @Inject constructor(
         )
 
 
+    suspend fun deleteNonBookmarkedArticlesOlderThan(timestampInMillis: Long){
+        newsArticleDao.deleteNonBookmarkedArticlesOlderThan(timestampInMillis)
+    }
 
 }

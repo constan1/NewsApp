@@ -24,4 +24,7 @@ interface NewsArticleDao
     //Values must be deleted first from local cache then new values must be inserted
     @Query("DELETE FROM breaking_news")
     suspend fun deleteAllBreakingNews()
+
+    @Query("DELETE FROM news_articles WHERE updatedAt < :timestampInMillis AND isBookmarked =0 ")
+    suspend fun deleteNonBookmarkedArticlesOlderThan(timestampInMillis: Long)
 }
