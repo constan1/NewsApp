@@ -47,7 +47,7 @@ class NewsRepository @Inject constructor(
                         articleUrl = article.url
                     )
                 }
-                newsArticleDb.withTransaction {
+                    newsArticleDb.withTransaction {
                     newsArticleDao.deleteAllBreakingNews()
                     newsArticleDao.insertArticles(breakingNewsArticles)
                     newsArticleDao.insertBreakingNews(breakingNews)

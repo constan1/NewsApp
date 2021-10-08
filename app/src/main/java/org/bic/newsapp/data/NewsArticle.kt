@@ -16,3 +16,4 @@ data class BreakingNews(
     val articleUrl: String,
     @PrimaryKey(autoGenerate = true) val id: Int = 0
 )
+
