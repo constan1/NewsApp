@@ -71,6 +71,14 @@ class BreakingNewsViewModel @Inject constructor(
         }
     }
 
+    fun onBookmarkClick(article: NewsArticle){
+        val currentlyBookmarked = article.isBookmarked
+        val updatedArticle = article.copy(isBookmarked = !currentlyBookmarked)
+        viewModelScope.launch {
+            repository.updateArticle(updatedArticle)
+        }
+    }
+
     sealed class Event{
         data class ShowErrorMessage(val error: Throwable):Event()
     }

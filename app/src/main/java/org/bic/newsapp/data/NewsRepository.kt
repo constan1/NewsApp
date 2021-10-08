@@ -2,6 +2,8 @@ package org.bic.newsapp.data
 
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import org.bic.newsapp.util.Resource
 import org.bic.newsapp.util.networkBoundResource
 import retrofit2.HttpException
@@ -32,13 +34,18 @@ class NewsRepository @Inject constructor(
             },
 
             saveFetchResult = { serverBreakingNewsArticles ->
+                val bookmarkArticles = newsArticleDao.bookMarkArticles().first()
                 val breakingNewsArticles =
                     serverBreakingNewsArticles.map{
+                        val isBookmarked = bookmarkArticles.any {
+                            bookmarkedArticle ->
+                            bookmarkedArticle.url == it.url
+                        }
                         NewsArticle(
                             title = it.title,
                             url = it.url,
                             thumbnailUrl = it.urlToImage,
-                            isBookmarked = false
+                            isBookmarked = isBookmarked
                         )
                     }
                 val breakingNews = breakingNewsArticles.map{
@@ -85,9 +92,22 @@ class NewsRepository @Inject constructor(
 
         )
 
+    fun getAllBarkedArticles() : Flow<List<NewsArticle>>{
+        return newsArticleDao.bookMarkArticles()
+
+
+    }
+    suspend fun updateArticle(article:NewsArticle){
+        newsArticleDao.updateArticle(article)
+    }
+
 
     suspend fun deleteNonBookmarkedArticlesOlderThan(timestampInMillis: Long){
         newsArticleDao.deleteNonBookmarkedArticlesOlderThan(timestampInMillis)
+    }
+
+    suspend fun resetAllBookmarks(){
+        newsArticleDao.resetAllBookmarks()
     }
 
 }

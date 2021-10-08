@@ -55,7 +55,7 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
 
             onBookmarkClick = {
                 article ->
-//                viewModel.onBookMarkClick(article)
+                viewModel.onBookmarkClick(article)
             }
         )
         _binding = FragmentBreakingNewsBinding.inflate(inflater, container, false)
@@ -78,7 +78,8 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
                     result.error?.localizedMessage
                         ?:getString(R.string.unknown_eror_occured)
                 )
-
+                binding.root.findViewById<RecyclerView>(R.id.recycler_view)
+                    .itemAnimator?.changeDuration =0
 
                 newsArticleAdapter.submitList(result.data) {
                     if (viewModel.pendingScrollToTopAfterRefresh){

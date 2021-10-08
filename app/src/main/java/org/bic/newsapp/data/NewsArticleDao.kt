@@ -1,9 +1,6 @@
 package org.bic.newsapp.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 
@@ -25,6 +22,15 @@ interface NewsArticleDao
     @Query("DELETE FROM breaking_news")
     suspend fun deleteAllBreakingNews()
 
+    @Update
+    suspend fun updateArticle(article:NewsArticle)
+
+    @Query("SELECT * FROM news_articles WHERE isBookmarked = 1")
+    fun bookMarkArticles() : Flow<List<NewsArticle>>
+
     @Query("DELETE FROM news_articles WHERE updatedAt < :timestampInMillis AND isBookmarked =0 ")
     suspend fun deleteNonBookmarkedArticlesOlderThan(timestampInMillis: Long)
+
+    @Query("UPDATE news_articles SET isBookmarked = 0")
+    suspend fun resetAllBookmarks()
 }
