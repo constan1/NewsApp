@@ -2,6 +2,7 @@ package org.bic.newsapp.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import retrofit2.http.DELETE
 
 
 @Dao
@@ -33,4 +34,14 @@ interface NewsArticleDao
 
     @Query("UPDATE news_articles SET isBookmarked = 0")
     suspend fun resetAllBookmarks()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSearchResults(searchResults:List<SearchResult>)
+
+    @Query("DELETE FROM search_results WHERE `query` = :query")
+    suspend fun deleteSearchResultsForQuery(query:String)
+
+
+    @Query("SELECT MAX(queryPosition) FROM search_results WHERE `query` =:searchQuery")
+    suspend fun getLastQueryPosition(searchQuery: String): Int?
 }
