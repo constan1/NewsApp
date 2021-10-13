@@ -17,10 +17,10 @@ data class BreakingNews(
     @PrimaryKey(autoGenerate = true) val id: Int = 0
 )
 
-@Entity(tableName = "search_results", primaryKeys = ["searchQuery", "articleUrl"])
+@Entity(tableName = "search_results", primaryKeys = ["query", "articleUrl"])
 data class SearchResult(
     val query : String,
-    val article: String,
+    val articleUrl: String,
     val queryPosition: Int
 ){
 

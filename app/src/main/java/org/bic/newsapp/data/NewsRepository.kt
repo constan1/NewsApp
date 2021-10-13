@@ -1,5 +1,8 @@
 package org.bic.newsapp.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -109,5 +112,16 @@ class NewsRepository @Inject constructor(
     suspend fun resetAllBookmarks(){
         newsArticleDao.resetAllBookmarks()
     }
+
+    fun getSearchResult(query:String): Flow<PagingData<NewsArticle>> =
+        Pager(
+            config = PagingConfig(pageSize = 20, maxSize = 200),
+            remoteMediator = SearchNewsRemoteMediator(query,newsApi,newsArticleDb),
+            pagingSourceFactory = {
+                newsArticleDao.getSearchResult(query) }
+        ).flow
+
+
+
 
 }

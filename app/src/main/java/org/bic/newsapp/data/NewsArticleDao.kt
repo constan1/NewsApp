@@ -1,5 +1,6 @@
 package org.bic.newsapp.data
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import retrofit2.http.DELETE
@@ -11,6 +12,9 @@ interface NewsArticleDao
 
     @Query("SELECT * FROM breaking_news INNER JOIN news_articles ON articleUrl=url")
     fun getAllBreakingNewsArticles(): Flow<List<NewsArticle>>
+
+    @Query("SELECT * FROM search_results INNER JOIN news_articles ON articleUrl = url WHERE `query` = :query ORDER BY queryPosition")
+    fun getSearchResult(query: String): PagingSource<Int,NewsArticle>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertArticles(articles: List<NewsArticle>)
