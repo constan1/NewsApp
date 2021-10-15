@@ -11,4 +11,6 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="refresh">Refresh</string>
     <string name="delete_all_bookmarks">Delete All Bookmarks</string>
+    <string name="search">search</string>
+    <string name ="could_not_load_search_results">Could not load search results: %s</string>
 </resources>

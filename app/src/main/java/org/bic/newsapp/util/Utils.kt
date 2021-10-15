@@ -1,10 +1,11 @@
 package org.bic.newsapp.util
 
-import android.os.Message
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.appcompat.widget.SearchView
 import com.google.android.material.snackbar.Snackbar
-import java.time.Duration
+
+
 
 
 fun Fragment.showSnackbar(
@@ -14,5 +15,27 @@ fun Fragment.showSnackbar(
 ) {
     Snackbar.make(view,message,duration).show()
 }
+
+/*
+Crossline is required when you do not call return in your function argument.
+ */
+inline fun SearchView.onQueryTextSubmit(crossinline listener: (String) -> Unit) {
+
+    this.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        override fun onQueryTextSubmit(query: String?): Boolean {
+            if(!query.isNullOrBlank()) {
+                listener(query)
+            }
+            return true
+        }
+
+        override fun onQueryTextChange(newText: String?): Boolean {
+            return true
+        }
+
+    })
+
+}
+
 val <T> T.exhaustive: T
     get() = this
