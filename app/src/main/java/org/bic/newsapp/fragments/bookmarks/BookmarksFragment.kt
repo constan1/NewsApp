@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import org.bic.newsapp.MainActivity
 import org.bic.newsapp.R
 import org.bic.newsapp.data.adapters.NewsArticleAdapter
 import org.bic.newsapp.databinding.FragmentBookmarksBinding
@@ -21,7 +22,8 @@ import org.bic.newsapp.viewmodels.BookmarksViewModel
 import org.bic.newsapp.viewmodels.BreakingNewsViewModel
 
 @AndroidEntryPoint
-class BookmarksFragment : Fragment(R.layout.fragment_bookmarks) {
+class BookmarksFragment : Fragment(R.layout.fragment_bookmarks)
+,MainActivity.OnBottomNavigationFragmentReselectedListener{
 
     private lateinit var viewModel: BookmarksViewModel
     private var _binding: FragmentBookmarksBinding? = null
@@ -91,4 +93,12 @@ class BookmarksFragment : Fragment(R.layout.fragment_bookmarks) {
 
         }
 
+    override fun onBottomNavigationFragmentReselected() {
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

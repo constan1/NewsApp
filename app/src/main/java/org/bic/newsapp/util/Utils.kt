@@ -4,8 +4,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.appcompat.widget.SearchView
 import com.google.android.material.snackbar.Snackbar
-
-
+import java.util.concurrent.locks.Condition
 
 
 fun Fragment.showSnackbar(
@@ -16,6 +15,14 @@ fun Fragment.showSnackbar(
     Snackbar.make(view,message,duration).show()
 }
 
+//inline fun takes function argument
+inline fun <T: View>T.showIfOrInvisible(condition: (T) -> Boolean){
+    if(condition(this)){
+        this.visibility = View.VISIBLE
+    } else {
+        this.visibility = View.INVISIBLE
+    }
+}
 /*
 Crossline is required when you do not call return in your function argument.
  */

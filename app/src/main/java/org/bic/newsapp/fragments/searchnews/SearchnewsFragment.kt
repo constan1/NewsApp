@@ -15,24 +15,30 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.*
+import org.bic.newsapp.MainActivity
 import org.bic.newsapp.R
 import org.bic.newsapp.data.NewsArticlePagingAdapter
 import org.bic.newsapp.databinding.FragmentSearchNewsBinding
 import org.bic.newsapp.viewmodels.SearchNewsViewModel
 import org.bic.newsapp.util.onQueryTextSubmit
+import org.bic.newsapp.util.showIfOrInvisible
+import org.bic.newsapp.util.showSnackbar
 
 @AndroidEntryPoint
-class SearchnewsFragment : Fragment(R.layout.fragment_search_news) {
+class SearchnewsFragment : Fragment(R.layout.fragment_search_news),
+MainActivity.OnBottomNavigationFragmentReselectedListener{
 
     private val viewmodel: SearchNewsViewModel by viewModels()
+
+    private var currentBinding: FragmentSearchNewsBinding? = null
+    private val binding get() = currentBinding!!
 
     private lateinit var newsArticleAdapter : NewsArticlePagingAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentSearchNewsBinding.bind(view)
+        currentBinding= FragmentSearchNewsBinding.bind(view)
 
         newsArticleAdapter = NewsArticlePagingAdapter(
             onItemClick = {
@@ -67,9 +73,33 @@ class SearchnewsFragment : Fragment(R.layout.fragment_search_news) {
                      */
                     data->
                     textViewInstructions.isVisible = false
+                    swipeRefreshLayout.isEnabled = true
                     newsArticleAdapter.submitData(data)
                 }
             }
+            swipeRefreshLayout.isEnabled = true
+
+            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                newsArticleAdapter.loadStateFlow
+                    .distinctUntilChangedBy {
+                        it.source.refresh
+                    }
+                    .filter {
+                        it.source.refresh is LoadState.NotLoading
+                    }
+                    .collect {
+
+                        if(viewmodel.scrollToTopAfterNewQuery){
+                            recyclerView.scrollToPosition(0)
+                            viewmodel.scrollToTopAfterNewQuery = false
+                        }
+                        if(viewmodel.pendingScrollToTopAfterRefresh && it.mediator?.refresh is LoadState.NotLoading){
+                            recyclerView.scrollToPosition(0)
+                            viewmodel.pendingScrollToTopAfterRefresh = false
+                        }
+                    }
+            }
+
 
             viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                 newsArticleAdapter.loadStateFlow
@@ -87,13 +117,23 @@ class SearchnewsFragment : Fragment(R.layout.fragment_search_news) {
                                     newsArticleAdapter.itemCount < 1 && loadState.append.endOfPaginationReached
                                             && loadState.source.append.endOfPaginationReached
                                 textViewNoResults.isVisible = noResults
+                                viewmodel.refreshInProgress = false
+                                viewmodel.newQueryInProgress  = false
                             }
                             is LoadState.Loading -> {
                                 textViewError.isVisible = false
                                 buttonRetry.isVisible = false
                                 textViewNoResults.isVisible = false
                                 swipeRefreshLayout.isRefreshing = true
-                                recyclerView.isVisible = newsArticleAdapter.itemCount > 0
+                                recyclerView.showIfOrInvisible {
+                                    viewmodel.newQueryInProgress && newsArticleAdapter.itemCount > 0
+                                }
+
+
+
+                                viewmodel.refreshInProgress = true
+                                viewmodel.pendingScrollToTopAfterRefresh = true
+
 
                             }
                             is LoadState.Error -> {
@@ -114,7 +154,16 @@ class SearchnewsFragment : Fragment(R.layout.fragment_search_news) {
                                         ?:getString(R.string.unknown_eror_occured)
                                     )
                                 textViewError.text = errorMessage
+                                if(viewmodel.refreshInProgress){
+                                    showSnackbar(errorMessage)
+                                }
+                                viewmodel.refreshInProgress = false
+                                viewmodel.pendingScrollToTopAfterRefresh = false
+                                viewmodel.newQueryInProgress  = false
                             }
+
+
+
                            
                         }
                     }
@@ -152,11 +201,21 @@ class SearchnewsFragment : Fragment(R.layout.fragment_search_news) {
 
     override fun onOptionsItemSelected(item: MenuItem)  =
         when (item.itemId){
-            R.id.action_refresh -> {
+            R.id.refresh -> {
              newsArticleAdapter.refresh()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+
+    override fun onBottomNavigationFragmentReselected() {
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.recyclerView.adapter = null
+        currentBinding = null
+    }
 
 }

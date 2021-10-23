@@ -27,6 +27,7 @@ class SearchNewsViewModel @Inject constructor(
             repository.getSearchResult(query)
         } ?: emptyFlow()
 
+
         /*
             This cachedIn function caches the flow in the viewmodel, when
             fragment is changed append operations no longer run.
@@ -34,8 +35,16 @@ class SearchNewsViewModel @Inject constructor(
 
     }.cachedIn(viewModelScope)
 
+    var refreshInProgress = false
+    var pendingScrollToTopAfterRefresh = false
+
+    var scrollToTopAfterNewQuery = false
+    var newQueryInProgress = false
+
     fun onSearchQuerySubmit(query: String){
         currentQuery.value = query
+        newQueryInProgress = true
+        scrollToTopAfterNewQuery = true
     }
 
     fun onBookmarkClick(article: NewsArticle){

@@ -98,11 +98,23 @@ class MainActivity : AppCompatActivity() {
                 else -> throw IllegalArgumentException("Unexpected itemId")
             }
 
+            if(selectedFragment === fragment){ // === compares references
+
+                if(fragment is OnBottomNavigationFragmentReselectedListener){
+                    fragment.onBottomNavigationFragmentReselected()
+                }
+            } else {
+                    selectFragment(fragment)
+            }
+
             selectFragment(fragment)
             true
         }
     }
 
+    interface OnBottomNavigationFragmentReselectedListener{
+        fun onBottomNavigationFragmentReselected()
+    }
     override fun onBackPressed() {
 
         if (selectedIndex != 0){

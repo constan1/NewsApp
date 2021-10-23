@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import org.bic.newsapp.MainActivity
 import org.bic.newsapp.R
 import org.bic.newsapp.data.adapters.NewsArticleAdapter
 import org.bic.newsapp.databinding.FragmentBreakingNewsBinding
@@ -24,7 +25,8 @@ import org.bic.newsapp.util.showSnackbar
 import org.bic.newsapp.viewmodels.BreakingNewsViewModel
 
 @AndroidEntryPoint
-class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
+class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news),
+MainActivity.OnBottomNavigationFragmentReselectedListener{
 
     private lateinit var  viewModel :  BreakingNewsViewModel
     private var _binding: FragmentBreakingNewsBinding? = null
@@ -132,4 +134,14 @@ class BreakingnewsFragment : Fragment(R.layout.fragment_breaking_news) {
             }
             else -> super.onOptionsItemSelected(item)
         }
+
+    override fun onBottomNavigationFragmentReselected() {
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.recyclerView.adapter = null
+        _binding = null
+    }
 }
